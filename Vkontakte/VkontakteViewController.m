@@ -64,12 +64,6 @@
 {
     [super viewDidLoad];
     
-    self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
-    
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" 
-                                                                              style:UIBarButtonItemStyleBordered 
-                                                                             target:self 
-                                                                             action:@selector(cancelButtonPressed:)];
     CGRect frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     _webView = [[UIWebView alloc] initWithFrame:frame];
     _webView.autoresizesSubviews = YES;
