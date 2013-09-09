@@ -97,12 +97,8 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)webView 
 {
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES]; 
-    _hud = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
-    [self.navigationController.view addSubview:_hud];
-	_hud.dimBackground = YES;
-    _hud.delegate = self;
-    [_hud show:YES];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+    [[GBHUD sharedHUD] showHUDWithType:GBHUDTypeLoading text:NSLocalizedString(@"Loading...", @"Loading") animated:YES];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView 
@@ -167,10 +163,8 @@
         }
     }
     
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];  
-    [_hud hide:YES];
-    [_hud removeFromSuperview];
-	_hud = nil;
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+    [[GBHUD sharedHUD] dismissHUDAnimated:YES];
 }
 
 -(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error 
@@ -182,10 +176,8 @@
         [self.delegate authorizationDidFailedWithError:error];
     }
     
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];  
-    [_hud hide:YES];
-    [_hud removeFromSuperview];
-	_hud = nil;
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+    [[GBHUD sharedHUD] dismissHUDAnimated:YES];
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType 
