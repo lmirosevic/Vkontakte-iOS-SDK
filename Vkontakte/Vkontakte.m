@@ -221,9 +221,19 @@ NSString * const vkRedirectUrl = @"http://oauth.vk.com/blank.html";
 
 @synthesize delegate;
 
+#pragma mark - CA
+
+-(NSString *)accessToken {
+    return accessToken;
+}
+
+-(NSString *)userID {
+    return userId;
+}
+
 #pragma mark - Initialize
 
-+ (id)sharedInstance
++ (Vkontakte *)sharedInstance
 {
     static dispatch_once_t pred = 0;
     __strong static id _sharedObject = nil;
@@ -265,7 +275,7 @@ NSString * const vkRedirectUrl = @"http://oauth.vk.com/blank.html";
 
 - (void)authenticate
 {
-    NSString *authLink = [NSString stringWithFormat:@"http://oauth.vk.com/oauth/authorize?client_id=%@&scope=%@&redirect_uri=%@&display=touch&response_type=token", vkAppId, vkPermissions, vkRedirectUrl];
+    NSString *authLink = [NSString stringWithFormat:@"http://oauth.vk.com/oauth/authorize?client_id=%@&scope=%@&redirect_uri=%@&display=touch&response_type=token", self.appID, [self.permissions componentsJoinedByString:@","], vkRedirectUrl];
     NSURL *url = [NSURL URLWithString:authLink];
     
     VkontakteViewController *vkontakteViewController = [[VkontakteViewController alloc] initWithAuthLink:url];

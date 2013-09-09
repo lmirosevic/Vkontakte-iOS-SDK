@@ -17,8 +17,6 @@
 #import <Foundation/Foundation.h>
 #import "VkontakteViewController.h"
 
-extern NSString * const vkAppId;
-extern NSString * const vkPermissions;
 extern NSString * const vkRedirectUrl;
 
 @protocol VkontakteDelegate;
@@ -33,9 +31,13 @@ extern NSString * const vkRedirectUrl;
     BOOL _isCaptcha;
 }
 
-@property (nonatomic, weak) id <VkontakteDelegate> delegate;
+@property (nonatomic, weak) id <VkontakteDelegate>      delegate;
+@property (copy, nonatomic) NSString                    *appID;
+@property (copy, nonatomic) NSArray                     *permissions;
+@property (strong, nonatomic, readonly) NSString        *accessToken;
+@property (strong, nonatomic, readonly) NSString        *userID;
 
-+ (id)sharedInstance;
++ (Vkontakte *)sharedInstance;
 - (BOOL)isAuthorized;
 - (void)authenticate;
 - (void)logout;
