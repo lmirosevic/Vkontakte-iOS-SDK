@@ -64,12 +64,6 @@
 {
     [super viewDidLoad];
     
-    self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
-    
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" 
-                                                                              style:UIBarButtonItemStyleBordered 
-                                                                             target:self 
-                                                                             action:@selector(cancelButtonPressed:)];
     CGRect frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     _webView = [[UIWebView alloc] initWithFrame:frame];
     _webView.autoresizesSubviews = YES;
@@ -97,12 +91,8 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)webView 
 {
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES]; 
-    _hud = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
-    [self.navigationController.view addSubview:_hud];
-	_hud.dimBackground = YES;
-    _hud.delegate = self;
-    [_hud show:YES];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+    [[GBHUD sharedHUD] showHUDWithType:GBHUDTypeLoading text:NSLocalizedString(@"Loading...", @"Loading") animated:YES];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView 
@@ -132,7 +122,6 @@
         // Получаем id пользователя, пригодится нам позднее
         NSArray *userAr = [[[[webView request] URL] absoluteString] componentsSeparatedByString:@"&user_id="];
         NSString *user_id = [userAr lastObject];
-        NSLog(@"User id: %@", user_id);
         
         NSString *expTime = [self stringBetweenString:@"expires_in=" 
                                             andString:@"&" 
@@ -160,32 +149,25 @@
     } 
     else if ([webView.request.URL.absoluteString rangeOfString:@"error"].location != NSNotFound) 
     {
-        NSLog(@"Error: %@", webView.request.URL.absoluteString);
         if (self.delegate && [self.delegate respondsToSelector:@selector(authorizationDidFailedWithError:)]) 
         {
             [self.delegate authorizationDidFailedWithError:nil];
         }
     }
     
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];  
-    [_hud hide:YES];
-    [_hud removeFromSuperview];
-	_hud = nil;
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+    [[GBHUD sharedHUD] dismissHUDAnimated:YES];
 }
 
 -(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error 
 {
-    
-    NSLog(@"vkWebView Error: %@", [error localizedDescription]);
     if (self.delegate && [self.delegate respondsToSelector:@selector(authorizationDidFailedWithError:)]) 
     {
         [self.delegate authorizationDidFailedWithError:error];
     }
     
-    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];  
-    [_hud hide:YES];
-    [_hud removeFromSuperview];
-	_hud = nil;
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+    [[GBHUD sharedHUD] dismissHUDAnimated:YES];
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType 
@@ -199,7 +181,6 @@
         }
         return NO;
     }
-	NSLog(@"Request: %@", [URL absoluteString]); 
 	return YES;
 }
 

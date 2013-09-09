@@ -15,12 +15,11 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MBProgressHUD.h"
+#import "GBHUD.h"
 
 @protocol VkontakteViewControllerDelegate;
-@interface VkontakteViewController : UIViewController <UIWebViewDelegate, MBProgressHUDDelegate>
+@interface VkontakteViewController : UIViewController <UIWebViewDelegate>
 {
-    MBProgressHUD *_hud;
     UIWebView *_webView;
     NSURL *_authLink;
 }

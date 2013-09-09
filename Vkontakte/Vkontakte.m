@@ -73,7 +73,6 @@
         
         UITextField *myTextField = (UITextField *)[actionSheet viewWithTag:33];
         [[NSUserDefaults standardUserDefaults] setObject:myTextField.text forKey:@"captcha_user"];
-        NSLog(@"Captcha entered: %@", myTextField.text);
         
         NSString *request = [[NSUserDefaults standardUserDefaults] objectForKey:@"request"];
         
@@ -113,7 +112,6 @@
         NSString *captcha_user = [[NSUserDefaults standardUserDefaults] objectForKey:@"captcha_user"];
         reqURl = [reqURl stringByAppendingFormat:@"&captcha_sid=%@&captcha_key=%@", captcha_sid, [self URLEncodedString: captcha_user]];
     }
-    NSLog(@"Sending request: %@", reqURl);
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:reqURl] 
                                                            cachePolicy:NSURLRequestReloadIgnoringLocalCacheData 
                                                        timeoutInterval:60.0]; 
@@ -130,7 +128,6 @@
         
         NSString *errorMsg = [[dict objectForKey:@"error"] objectForKey:@"error_msg"];
         
-        NSLog(@"Server response: %@ \nError: %@", dict, errorMsg);
         
         if([errorMsg isEqualToString:@"Captcha needed"])
         {
@@ -152,7 +149,6 @@
 
 - (NSDictionary *)sendPOSTRequest:(NSString *)reqURl withImageData:(NSData *)imageData 
 {
-    NSLog(@"Sending request: %@", reqURl);
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:reqURl] 
                                                            cachePolicy:NSURLRequestReloadIgnoringLocalCacheData 
@@ -190,11 +186,6 @@
                               JSONObjectWithData:responseData
                               options:kNilOptions 
                               error:&error];
-        
-        NSString *errorMsg = [[dict objectForKey:@"error"] objectForKey:@"error_msg"];
-        
-        NSLog(@"Server response: %@ \nError: %@", dict, errorMsg);
-        
         return dict;
     }
     return nil;
@@ -214,16 +205,23 @@
 
 @implementation Vkontakte
 
-#warning Provide your vkontakte app id
-NSString * const vkAppId = @"3424121";
-NSString * const vkPermissions = @"wall,photos,offline";
 NSString * const vkRedirectUrl = @"http://oauth.vk.com/blank.html";
 
 @synthesize delegate;
 
+#pragma mark - CA
+
+-(NSString *)accessToken {
+    return accessToken;
+}
+
+-(NSString *)userID {
+    return userId;
+}
+
 #pragma mark - Initialize
 
-+ (id)sharedInstance
++ (Vkontakte *)sharedInstance
 {
     static dispatch_once_t pred = 0;
     __strong static id _sharedObject = nil;
@@ -265,16 +263,15 @@ NSString * const vkRedirectUrl = @"http://oauth.vk.com/blank.html";
 
 - (void)authenticate
 {
-    NSString *authLink = [NSString stringWithFormat:@"http://oauth.vk.com/oauth/authorize?client_id=%@&scope=%@&redirect_uri=%@&display=touch&response_type=token", vkAppId, vkPermissions, vkRedirectUrl];
+    NSString *authLink = [NSString stringWithFormat:@"http://oauth.vk.com/oauth/authorize?client_id=%@&scope=%@&redirect_uri=%@&display=touch&response_type=token", self.appID, [self.permissions componentsJoinedByString:@","], vkRedirectUrl];
     NSURL *url = [NSURL URLWithString:authLink];
     
     VkontakteViewController *vkontakteViewController = [[VkontakteViewController alloc] initWithAuthLink:url];
     vkontakteViewController.delegate = self;
-    UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:vkontakteViewController];
     
     if (self.delegate && [self.delegate respondsToSelector:@selector(showVkontakteAuthController:)]) 
     {
-        [self.delegate showVkontakteAuthController:navController];
+        [self.delegate showVkontakteAuthController:vkontakteViewController];
     }
 }
 
@@ -334,9 +331,6 @@ NSString * const vkRedirectUrl = @"http://oauth.vk.com/blank.html";
 	NSData *response = [NSURLConnection sendSynchronousRequest:request 
 											 returningResponse:nil 
 														 error:nil];
-	NSString *responseString = [[NSString alloc] initWithData:response 
-                                                     encoding:NSUTF8StringEncoding];
-	NSLog(@"%@",responseString);
     
     NSError* error;
     NSDictionary* parsedDictionary = [NSJSONSerialization 
@@ -384,7 +378,6 @@ NSString * const vkRedirectUrl = @"http://oauth.vk.com/blank.html";
                                  userId, 
                                  accessToken, 
                                  [self URLEncodedString:message]];
-    NSLog(@"sendTextMessage: %@", sendTextMessage);
     
     NSDictionary *result = [self sendRequest:sendTextMessage withCaptcha:NO];
     // Если есть описание ошибки в ответе
@@ -428,7 +421,6 @@ NSString * const vkRedirectUrl = @"http://oauth.vk.com/blank.html";
                                         [self URLEncodedString:message], 
                                         link];
     
-    NSLog(@"sendTextAndLinkMessage: %@", sendTextAndLinkMessage);
     
     // Если запрос более сложный мы можем работать дальше с полученным ответом
     NSDictionary *result = [self sendRequest:sendTextAndLinkMessage withCaptcha:NO];
